@@ -11,15 +11,14 @@ read WEIGHT
 if [ $WEIGHT = "E" ]; then
     echo "=> entropy-based weight"
 
-    python main_voc_mctformer.py \
+    python main_voc_conformer.py \
+    --pretrained pretrained/conformer_sm.pth \
     --data_dir $DATA_DIR \
-    --batch_size 64 \
-    --num_workers 4 \
-    --epochs 60 \
-    --model deit_small_MCTformerV2_patch16_224 \
-    --pretrained https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth \
-    --cls_epochs 10 \
-    --layer_index 7 \
+    --batch_size 8 \
+    --num_workers 2 \
+    --epochs 12 \
+    --cls_epochs 2 \
+    --layer_index 9 \
     --score_l 0.35 \
     --score_h 0.55 \
     --use_ent \
@@ -27,26 +26,26 @@ if [ $WEIGHT = "E" ]; then
 else
     echo "=> uniform weight"
 
-    python main_voc_mctformer.py \
+    python main_voc_conformer.py \
+    --pretrained pretrained/conformer_sm.pth \
     --data_dir $DATA_DIR \
-    --batch_size 64 \
-    --num_workers 4 \
-    --epochs 60 \
-    --model deit_small_MCTformerV2_patch16_224 \
-    --pretrained https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth \
-    --cls_epochs 10 \
-    --layer_index 7 \
+    --batch_size 8 \
+    --num_workers 2 \
+    --epochs 12 \
+    --cls_epochs 2 \
+    --layer_index 9 \
     --score_l 0.35 \
     --score_h 0.55 \
     --output_dir $OUTPUT_DIR
 fi
 
-python main_voc_mctformer.py \
---gen_attention_maps \
+python infer_conformer.py \
+--dataset voc \
 --split train_aug \
---checkpoint "${OUTPUT_DIR}/checkpoint_best.pth" \
+--checkpoint "${OUTPUT_DIR}/checkpoint.pth" \
 --cam_npy_dir "${OUTPUT_DIR}/cam_npy" \
---cam_png_dir "${OUTPUT_DIR}/cam_png"
+--cam_png_dir "${OUTPUT_DIR}/cam_png" \
+--scales 0.5 1.0 1.5
 
 python evaluate.py \
 --dataset voc \
